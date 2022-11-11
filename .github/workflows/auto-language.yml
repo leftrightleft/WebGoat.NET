@@ -29,8 +29,9 @@ jobs:
       fail-fast: true
       matrix: 
         language: ${{ fromJSON(needs.create-matrix.outputs.matrix) }}
-        include:
-          - language: javascript
+        exclude:
+          - language: if ${{ matrix.language == 'javascript' }}
+          
           
         # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby' ]
         # Learn more about CodeQL language support at https://aka.ms/codeql-docs/language-support    
