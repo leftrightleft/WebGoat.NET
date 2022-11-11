@@ -13,7 +13,7 @@ jobs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       - id: set-matrix
-        run: echo "matrix=$(echo "{\"language\":$(gh api ${{ github.event.repository.languages_url }}| jq -jr 'keys' | tr -d '  \n' | tr '[:upper:]' '[:lower:]')}")" >> $GITHUB_OUTPUT
+        run: echo "matrix=$(echo "$(gh api ${{ github.event.repository.languages_url }}| jq -jr 'keys' | tr -d '  \n' | tr '[:upper:]' '[:lower:]')")" >> $GITHUB_OUTPUT
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
      
@@ -27,7 +27,8 @@ jobs:
       security-events: write
     strategy:
       fail-fast: true
-      matrix: ${{ fromJSON(needs.create-matrix.outputs.matrix) }}
+      matrix: 
+        language: ${{ fromJSON(needs.create-matrix.outputs.matrix) }}
         include:
           - language: javascript
           
