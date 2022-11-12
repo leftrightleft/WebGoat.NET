@@ -11,17 +11,26 @@
 #
 name: "CodeQL"
 
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    # The branches below must be a subset of the branches above
-    branches: [ master ]
-  schedule:
-    - cron: '20 17 * * 6'
+on: workflow_dispatch
 
 jobs:
+  create-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.languages }}
+    steps:
+      - name: Get languages from repo
+        id: get-languages
+        uses: leftrightleft/set-codeql-languages@main
+        with:
+          access-token: ${{ secrets.GITHUB_TOKEN }}
+          endpoint: ${{ github.event.repository.languages_url }}
+      # Use the output from the `hello` step
+#       - name: Get the output time
+#         run: echo "The time was ${{ steps.hello.outputs.time }}"
+          
   analyze:
+    needs: create-matrix
     name: Analyze
     runs-on: ubuntu-latest
     permissions:
@@ -31,8 +40,8 @@ jobs:
 
     strategy:
       fail-fast: false
-      matrix:
-        language: [ 'csharp', 'javascript' ]
+      matrix: 
+        language: ${{ fromJSON(needs.create-matrix.outputs.matrix) }}
         # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python' ]
         # Learn more:
         # https://docs.github.com/en/free-pro-team@latest/github/finding-security-vulnerabilities-and-errors-in-your-code/configuring-code-scanning#changing-the-languages-that-are-analyzed
